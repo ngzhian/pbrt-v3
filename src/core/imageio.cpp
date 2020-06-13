@@ -439,7 +439,7 @@ static bool WriteImagePFM(const std::string &filename, const Float *rgb,
     FILE *fp;
     float scale;
 
-    fp = fopen("/dev/stdout", "wb");
+    fp = fopen(filename.c_str(), "wb");
     if (!fp) {
         Error("Unable to open output PFM file \"%s\"", filename.c_str());
         return false;
@@ -465,12 +465,11 @@ static bool WriteImagePFM(const std::string &filename, const Float *rgb,
     for (int y = height - 1; y >= 0; y--) {
         // in case Float is 'double', copy into a staging buffer that's
         // definitely a 32-bit float...
-        for (int x = 0; x < 3 * width; ++x) {
+        for (int x = 0; x < 3 * width; ++x)
             scanline[x] = rgb[y * width * 3 + x];
-            int i;
-            memcpy(&i, &scanline[x], sizeof(float));
-            fprintf(fp, "%.8x", i);
-        }
+        if (fwrite(&scanline[0], sizeof(float), width * 3, fp) <
+            (size_t)(width * 3))
+            goto fail;
     }
 
     fclose(fp);
