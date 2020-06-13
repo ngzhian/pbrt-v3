@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/path/to/emsdk/node/12.9.1_64bit/bin/node --experimental-wasm-threads "$@"
