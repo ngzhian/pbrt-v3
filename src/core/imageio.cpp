@@ -40,6 +40,10 @@
 #include <ImfRgba.h>
 #include <ImfRgbaFile.h>
 
+#if __EMSCRIPTEN__
+#include "emscripten.h"
+#endif  // __EMSCRIPTEN__
+
 namespace pbrt {
 
 // ImageIO Local Declarations
@@ -473,6 +477,13 @@ static bool WriteImagePFM(const std::string &filename, const Float *rgb,
     }
 
     fclose(fp);
+
+#if __EMSCRIPTEN__
+    MAIN_THREAD_EM_ASM({
+        drawPFMToCanvas($0, $1);
+    }, width, height);
+#endif // __EMSCRIPTEN__
+
     return true;
 
 fail:
